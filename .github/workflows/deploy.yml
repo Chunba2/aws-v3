@@ -20,7 +20,7 @@ jobs:
       - name: Pemission
         run: chmod +x ./gradlew
       - name: Build with Gradle
-        run: ./gradlew clean build -x test
+        run: ./gradlew clean build
 
       # UTC 변경(한국시간 + 9H)
       - name: Get current time
@@ -32,7 +32,7 @@ jobs:
       - name: Show Current Time
         run: echo "CurrentTime=${{steps.current-time.outputs.formattedTime}}"
 
-      # EB에 CD 하기 위해 추가 작성하기
+      # EB에 CD 하기 위해 추가 작성
       - name: Generate deployment package
         run: |
           mkdir deploy
@@ -40,13 +40,13 @@ jobs:
           cp Procfile deploy/Procfile
           cp -r .ebextensions deploy/.ebextensions
           cd deploy && zip -r deploy.zip .
-          - name: Deploy to EB
-            uses: einaregilsson/beanstalk-deploy@v21
-            with:
-              aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-              aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-              application_name: aws-v3 # 엘리스틱 빈스톡 애플리케이션 이름!
-              environment_name: Aws-v3-env # 엘리스틱 빈스톡 환경 이름!
-              version_label: aws-v3-${{steps.current-time.outputs.formattedTime}}
-              region: ap-northeast-2
-              deployment_package: deploy/deploy.zip
+      - name: Deploy to EB
+        uses: einaregilsson/beanstalk-deploy@v21
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+          application_name: aws-v3 # 엘리스틱 빈스톡 애플리케이션 이름!
+          environment_name: Aws-v3-env # 엘리스틱 빈스톡 환경 이름!
+          version_label: aws-v3-${{steps.current-time.outputs.formattedTime}}
+          region: ap-northeast-2
+          deployment_package: deploy/deploy.zip
